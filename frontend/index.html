@@ -1,0 +1,48 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>🔊 Multi-User Chat</title>
+  <script>
+    let socket;
+
+    function connect() {
+      socket = new WebSocket("ws://localhost:8080/chat");
+
+      socket.onopen = () => {
+        document.getElementById("status").textContent = "✅ Connected";
+      };
+
+      socket.onmessage = (event) => {
+        const chat = document.getElementById("chat");
+        chat.innerHTML += `<div>👤 ${event.data}</div>`;
+      };
+
+      socket.onclose = () => {
+        document.getElementById("status").textContent = "❌ Disconnected from chat server.";
+      };
+
+      socket.onerror = (error) => {
+        document.getElementById("status").textContent = "⚠️ Error: " + error.message;
+      };
+    }
+
+    function sendMessage() {
+      const input = document.getElementById("message");
+      if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.send(input.value);
+        input.value = "";
+      }
+    }
+
+    window.onload = connect;
+  </script>
+</head>
+<body>
+  <h1>🔊 Multi-User Chat</h1>
+  <div id="status">Connecting...</div>
+  <div id="chat" style="border:1px solid #000; height:200px; overflow:auto; margin:10px 0;"></div>
+  <input id="message" placeholder="Type a message..." />
+  <button onclick="sendMessage()">Send</button>
+</body>
+</html>
